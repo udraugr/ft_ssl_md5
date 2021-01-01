@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:43 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/01 19:37:21 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/01 22:35:33 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 static t_algorithm			*get_algorithms(void)
 {
-	static t_algorithm		algorithms[] = {ft_md5, "md5", "MD5(%s)",
+	static t_algorithm		algorithms[] = {ft_md5, "md5", "MD5(%s)= %s\n",
 											ft_sha256, "sha256", "SHA256(%s)",
 											0, 0, 0};
 
@@ -40,6 +40,7 @@ static uint8_t				get_info_algorithm(char *name_algorithm,
 			endian = 0x0001;
 			endian = *((uint8_t *)&endian) ? LITTLE : BIG;
 			input->endian = endian;
+			input->flags = 0;
 			return (SUCCESS);
 		}
 		++i;

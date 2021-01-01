@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 18:45:52 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/01 19:55:59 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/01 22:36:13 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,10 @@ void				get_file_input(char **argv, size_t i, t_input *input)
 	{
 		if ((fd = open(argv[i], O_RDONLY)) == -1)
 			ft_putendl_fd("open: cat't take fd for file!", STDERR_FILENO);
+		input->from = ft_strdup(argv[i]);
 		++i;
 		if (fd == -1 || !(input->input_str = read_from_fd(fd)))
 			continue ;
-		input->from = ft_strdup(argv[i]);
 		hash = input->hash_func(input);
 		ft_print_hash(hash, input);
 		ft_strdel(&hash);

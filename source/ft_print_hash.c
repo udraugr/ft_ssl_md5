@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 19:52:51 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/01 19:55:23 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/01 22:34:10 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,4 +22,6 @@ void				ft_print_hash(char *hash, t_input *input)
 		ft_printf("%s\n", hash);
 	else if (input->flags & FLAG_P)
 		ft_printf("%s\n", hash);
+	else
+		ft_printf(input->promt, input->from, hash);
 }
