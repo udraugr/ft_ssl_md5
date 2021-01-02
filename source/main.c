@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:43 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/01 22:35:33 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 16:58:35 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 static t_algorithm			*get_algorithms(void)
 {
-	static t_algorithm		algorithms[] = {ft_md5, "md5", "MD5(%s)= %s\n",
-											ft_sha256, "sha256", "SHA256(%s)",
+	static t_algorithm		algorithms[] = {ft_md5, "md5", "MD5",
+											ft_sha256, "sha256", "SHA256",
 											0, 0, 0};
 
 	return (algorithms);
@@ -50,20 +50,56 @@ static uint8_t				get_info_algorithm(char *name_algorithm,
 	return (FAIL);
 }
 
-static uint8_t				get_info_flags(char *flags,
-											t_input *input)
+static uint8_t				get_info_flags(char **flags,
+											size_t *i,
+											t_input *input,
+											t_read_from_stdin *stdin_read)
 {
-	if (!ft_strcmp(flags, "-q"))
+	char					*str_for_hash;
+	char					*hash;
+
+	if (!flags || !flags[*i])
+		return (FAIL);
+	if (!ft_strcmp(flags[*i], "-q"))
 		input->flags |= FLAG_Q;
-	else if (!ft_strcmp(flags, "-r"))
+	else if (!ft_strcmp(flags[*i], "-r"))
 		input->flags |= FLAG_R;
-	else if (!ft_strcmp(flags, "-s"))
+	else if (!ft_strcmp(flags[*i], "-s"))
+	{
+		if (!flags[*i + 1])
+		{
+			ft_putendl_fd("-s\toption requires an argument\n", STDERR_FILENO);
+			return (FAIL);
+		}
+		if (!(str_for_hash = ft_strnew(ft_strlen(flags[*i + 1]) + 2)))
+		{
+			ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
+			exit(FAIL);
+		}
+		str_for_hash[0] = '"';
+		ft_strcpy(&str_for_hash[1], flags[*i + 1]);
+		str_for_hash[ft_strlen(flags[*i + 1]) + 1] = '"';
+		input->from = str_for_hash;
+		input->input_str = ft_strdup(flags[*i + 1]);
 		input->flags |= FLAG_S;
-	else if (!ft_strcmp(flags, "-p"))
+		hash = input->hash_func(input);
+		ft_print_hash(hash, input);
+		ft_strdel(&hash);
+		ft_strdel(&input->input_str);
+		ft_strdel(&input->from);
+		input->flags &= ~FLAG_S;
+		*i += 1;
+		stdin_read->need_read = FALSE;
+	}
+	else if (!ft_strcmp(flags[*i], "-p"))
+	{
 		input->flags |= FLAG_P;
+		get_std_input(input, stdin_read);
+		input->flags &= ~FLAG_P;
+	}
 	else
 	{
-		ft_putstr_fd(flags, STDERR_FILENO);
+		ft_putstr_fd(flags[*i], STDERR_FILENO);
 		ft_putendl_fd(": Unknown options\n", STDERR_FILENO);
 		return (FAIL);
 	}
@@ -98,20 +134,24 @@ int							main(int argc, char **argv)
 {
 	size_t					i;
 	t_input					input;
-	char					hash;
+	t_read_from_stdin		stdin_read;
 
 	if (argc < 2 || get_info_algorithm(argv[1], &input) == FAIL)
 		ft_usage();
 	i = 2;
+	stdin_read.read_from_stdin = FALSE;
+	stdin_read.need_read = TRUE;
 	while (argv[i] && argv[i][0] == '-')
 	{
-		if (get_info_flags(argv[i], &input) == FAIL)
+		if (get_info_flags(argv, &i, &input, &stdin_read) == FAIL)
 			ft_usage();
 		++i;
 	}
-	if (!argv[i])
-		get_std_input(&input);
-	else
+	if (stdin_read.need_read == TRUE
+		&& stdin_read.read_from_stdin == FALSE
+		&& !argv[i])
+		get_std_input(&input, &stdin_read);
+	else if (argv[i])
 		get_file_input(argv, i, &input);
 	return (0);
 }

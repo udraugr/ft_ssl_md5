@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:37 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 13:56:02 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 16:56:18 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,15 +16,10 @@
 # include "../libftprintf/ft_printf/printf.h"
 # include <fcntl.h>
 
-typedef u_int64_t uint64_t;
-typedef u_int32_t uint32_t;
-typedef u_int16_t uint16_t;
-typedef u_int8_t uint8_t;
-
-# define FLAG_Q 0x1000
-# define FLAG_R 0x100
-# define FLAG_S 0x10
-# define FLAG_P 0x1
+typedef u_int64_t	uint64_t;
+typedef u_int32_t	uint32_t;
+typedef u_int16_t	uint16_t;
+typedef u_int8_t	uint8_t;
 
 # define F(X, Y, Z) (uint32_t)((X & Y) | (~X & Z))
 # define G(X, Y, Z) (uint32_t)((X & Z) | (Y & ~Z))
@@ -32,6 +27,20 @@ typedef u_int8_t uint8_t;
 # define I(X, Y, Z) (uint32_t)(Y ^ (X | ~Z))
 
 # define ROTATE_LEFT(X, N) (uint32_t)((X << N) | (X >> (32 - N)))
+
+enum
+{
+	FLAG_Q = 0x1000,
+	FLAG_R = 0x100,
+	FLAG_S = 0x10,
+	FLAG_P = 0x1
+};
+
+enum
+{
+	FALSE,
+	TRUE
+};
 
 enum
 {
@@ -44,6 +53,12 @@ enum
 	LITTLE,
 	BIG
 };
+
+typedef struct			s_read_from_stdin
+{
+	uint8_t				read_from_stdin;
+	uint8_t				need_read;
+}						t_read_from_stdin;
 
 typedef struct			s_input
 {
@@ -77,7 +92,8 @@ typedef struct			s_hash
 	size_t				size;
 }						t_hash;
 
-void 					get_std_input(t_input *input);
+void					get_std_input(t_input *input,
+										t_read_from_stdin *stdin_read);
 void					get_file_input(char **argv, size_t i, t_input *input);
 
 void					ft_print_hash(char *hash, t_input *input);

@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/29 20:35:14 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 14:06:18 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 16:03:35 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,7 +32,11 @@ char				*ft_itoa_base(uint32_t num, uint8_t base)
 	result[i] = digits[num];
 	result[i + 1] = '\0';	
 	// ft_printf("ascii= %p\n", ascii);
-	ascii = ft_strnew(ft_strlen(result));
+	if (!(ascii = ft_strnew(ft_strlen(result))))
+	{
+		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
+		exit(FAIL);
+	}
 	i = 0;
 	while (result[i])
 	{
@@ -45,7 +49,11 @@ char				*ft_itoa_base(uint32_t num, uint8_t base)
 static void			init_hash_md5(t_hash *hash)
 {
 	hash->hash64 = NULL;
-	hash->hash32 = ft_memalloc(sizeof(uint32_t) * 4);
+	if (!(hash->hash32 = ft_memalloc(sizeof(uint32_t) * 4)))
+	{
+		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
+		exit(FAIL);
+	}
 	hash->hash32[0] = 0x67452301;
 	hash->hash32[1] = 0xEFCDAB89;
 	hash->hash32[2] = 0x98BADCFE;
@@ -90,7 +98,11 @@ static void			init_word_md5(t_input *input, t_word32 *word)
 	// printf("\n");
 	mod64 = (l + 1) % 64;
 	nl = (mod64 > 56) ? l + 1 + 64 - (mod64 - 56) : l + 1 + 56 - mod64;
-	word->buf = ft_strnew(nl + 8);
+	if (!(word->buf = (unsigned char *)ft_strnew(nl + 8)))
+	{
+		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
+		exit(FAIL);
+	}
 	ft_memcpy(word->buf, input->input_str, l);
 	word->buf[l] = 0x80;
 	// проверка на endian на машина с BIGe нужно свапнуть порядок байт
@@ -148,7 +160,7 @@ static void			compute_chunk(uint32_t *buf, t_hash *hash, t_word32 *word)
 		th[3] = th[2];
 		th[2] = th[1];
 		th[1] += ROTATE_LEFT(func, word->s[i]);
-		printf("%x%x%x%x\n", th[0], th[1], th[2], th[3]);
+		//printf("%x%x%x%x\n", th[0], th[1], th[2], th[3]);
 		++i;
 	}
 	hash->hash32[0] += th[0];
@@ -188,8 +200,8 @@ char				*ft_md5(t_input *input)
 					ft_itoa_base(hash.hash32[size], 16), BOTH);
 		++size;
 	}
-	free(word.buf);
-	word.buf = 0;
+	ft_memdel((void **)&hash.hash32);
+	ft_memdel((void **)&word.buf);
 	//ft_putendl_fd("I'm here!", STDERR_FILENO);
 	return (hash_str);
 }

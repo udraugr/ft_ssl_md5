@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 18:17:13 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 14:04:51 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 16:08:16 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,11 @@
 static void			init_hash_sha256(t_hash *hash)
 {
 	hash->hash64 = NULL;
-	hash->hash32 = ft_memalloc(sizeof(uint32_t) * 8);
+	if (!(hash->hash32 = ft_memalloc(sizeof(uint32_t) * 8)))
+	{
+		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
+		exit(FAIL);
+	}
 	hash->hash32[0] = 0x67452301;
 	hash->hash32[1] = 0xEFCDAB89;
 	hash->hash32[2] = 0x98BADCFE;
@@ -24,7 +28,7 @@ static void			init_hash_sha256(t_hash *hash)
 	hash->size = 8;
 }
 
-static void			init_word_md5(t_input *input, t_word32 *word)
+static void			init_word_sha256(t_input *input, t_word32 *word)
 {
 	static uint32_t		k[] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
 		0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501, 0x698098d8, 0x8b44f7af,
@@ -58,7 +62,11 @@ static void			init_word_md5(t_input *input, t_word32 *word)
 	// printf("\n");
 	mod64 = (l + 1) % 64;
 	nl = (mod64 > 56) ? l + 1 + 64 - (mod64 - 56) : l + 1 + 56 - mod64;
-	word->buf = ft_strnew(nl + 8);
+	if (!(word->buf = (unsigned char *)ft_strnew(nl + 8)))
+	{
+		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
+		exit(FAIL);
+	}
 	ft_memcpy(word->buf, input->input_str, l);
 	word->buf[l] = 0x80;
 	// проверка на endian на машина с BIGe нужно свапнуть порядок байт
@@ -87,9 +95,8 @@ char				*ft_sha256(t_input *input)
 	size = 0;
 	while (size < word.size)
 	{
-		compute_chunk((uint32_t *)&word.buf[size], &hash, &word);
+		//compute_chunk((uint32_t *)&word.buf[size], &hash, &word);
 		size += 64;
-		// printf("%x%x%x%x\n", hash.hash32[0], hash.hash32[1], hash.hash32[2], hash.hash32[3]);
 	}
 	// проверка на endian на машина с BIGe нужно свапнуть порядок байт
 	hash.hash32[0] = swap_uint32(hash.hash32[0]);
@@ -98,15 +105,14 @@ char				*ft_sha256(t_input *input)
 	hash.hash32[3] = swap_uint32(hash.hash32[3]);
 	size = 0;
 	hash_str = NULL;
-	// ft_printf("word.buf = %p\n", word.buf);
 	while (size < hash.size)
 	{
 		hash_str = ft_strjoin_pro(hash_str,
 					ft_itoa_base(hash.hash32[size], 16), BOTH);
 		++size;
 	}
-	free(word.buf);
-	word.buf = 0;
+	ft_memdel((void **)&hash.hash32);
+	ft_memdel((void **)&word.buf);
 	//ft_putendl_fd("I'm here!", STDERR_FILENO);
 	return (hash_str);
 }

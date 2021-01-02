@@ -1,0 +1,1 @@
+./ft_ssl md5 -s "hello, world\!" -s -s -s -s -p -p -p -q -r -s TUT
