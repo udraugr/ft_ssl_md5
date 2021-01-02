@@ -6,13 +6,25 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 18:17:13 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 19:31:38 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/03 00:05:35 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ssl.h"
 
-static void			init_hash_sha256(t_hash *hash)
+static uint32_t		g_k[] = {0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
+	0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5, 0xD807AA98, 0x12835B01,
+	0x243185BE, 0x550C7DC3, 0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174,
+	0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC, 0x2DE92C6F, 0x4A7484AA,
+	0x5CB0A9DC, 0x76F988DA, 0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7,
+	0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967, 0x27B70A85, 0x2E1B2138,
+	0x4D2C6DFC, 0x53380D13, 0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
+	0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3, 0xD192E819, 0xD6990624,
+	0xF40E3585, 0x106AA070, 0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5,
+	0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,	0x748F82EE, 0x78A5636F,
+	0x84C87814, 0x8CC70208, 0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2};
+
+static void			init_hash_sha256(uint8_t endian, t_hash *hash)
 {
 	hash->hash64 = NULL;
 	if (!(hash->hash32 = ft_memalloc(sizeof(uint32_t) * 8)))
@@ -20,46 +32,27 @@ static void			init_hash_sha256(t_hash *hash)
 		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
 		exit(FAIL);
 	}
-	hash->hash32[0] = 0x67452301;
-	hash->hash32[1] = 0xEFCDAB89;
-	hash->hash32[2] = 0x98BADCFE;
-	hash->hash32[3] = 0x10325476;
-	// проверка на endian на машина с BIGe нужно свапнуть порядок байт
+	hash->hash32[0] = 0x6A09E667;
+	hash->hash32[1] = 0xBB67AE85;
+	hash->hash32[2] = 0x3C6EF372;
+	hash->hash32[3] = 0xA54FF53A;
+	hash->hash32[4] = 0x510E527F;
+	hash->hash32[5] = 0x9B05688C;
+	hash->hash32[6] = 0x1F83D9AB;
+	hash->hash32[7] = 0x5BE0CD19;
+	if (endian == BIG)
+		ft_hash_swap_byte(hash);
 	hash->size = 8;
 }
 
-static void			init_word_sha256(t_input *input, t_word32 *word)
+static void			init_word_sha256(char *input_str,
+									uint8_t endian, t_word32 *word)
 {
-	static uint32_t		k[] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
-		0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501, 0x698098d8, 0x8b44f7af,
-		0xffff5bb1, 0x895cd7be, 0x6b901122, 0xfd987193, 0xa679438e, 0x49b40821,
-		0xf61e2562, 0xc040b340, 0x265e5a51, 0xe9b6c7aa, 0xd62f105d, 0x02441453,
-		0xd8a1e681, 0xe7d3fbc8, 0x21e1cde6, 0xc33707d6, 0xf4d50d87, 0x455a14ed,
-		0xa9e3e905, 0xfcefa3f8, 0x676f02d9, 0x8d2a4c8a, 0xfffa3942, 0x8771f681,
-		0x6d9d6122, 0xfde5380c, 0xa4beea44, 0x4bdecfa9, 0xf6bb4b60, 0xbebfbc70,
-		0x289b7ec6, 0xeaa127fa, 0xd4ef3085, 0x04881d05, 0xd9d4d039, 0xe6db99e5,
-		0x1fa27cf8, 0xc4ac5665, 0xf4292244, 0x432aff97, 0xab9423a7, 0xfc93a039,
-		0x655b59c3, 0x8f0ccc92, 0xffeff47d, 0x85845dd1, 0x6fa87e4f, 0xfe2ce6e0,
-		0xa3014314, 0x4e0811a1, 0xf7537e82, 0xbd3af235, 0x2ad7d2bb, 0xeb86d391};
-	static uint32_t		s[] = {
-		7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
-		5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
-		4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
-		6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21};
 	size_t				l;
 	size_t				nl;
 	size_t				mod64;
 
-	word->k = k;
-	word->s = s;
-	l = ft_strlen(input->input_str);
-	// for (size_t i = 0; i < l; ++i)
-	// {
-	// 	if (i % 4 == 0)
-	// 		printf("\n");
-	// 	printf("%s", ft_itoa_base(input->input_str, 16));
-	// }
-	// printf("\n");
+	l = ft_strlen(input_str);
 	mod64 = (l + 1) % 64;
 	nl = (mod64 > 56) ? l + 1 + 64 - (mod64 - 56) : l + 1 + 56 - mod64;
 	if (!(word->buf = (unsigned char *)ft_strnew(nl + 8)))
@@ -67,52 +60,83 @@ static void			init_word_sha256(t_input *input, t_word32 *word)
 		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
 		exit(FAIL);
 	}
-	ft_memcpy(word->buf, input->input_str, l);
+	ft_memcpy(word->buf, input_str, l);
 	word->buf[l] = 0x80;
-	// проверка на endian на машина с BIGe нужно свапнуть порядок байт
 	l *= 8;
+	if (endian == LITTLE)
+		l = swap_uint64(l);
 	ft_memcpy(&word->buf[nl], &l, 8);
 	word->size = nl + 8;
-	// for (size_t i = 0; i < word->size; ++i)
-	// {
-	// 	if (i % 4 == 0)
-	// 		printf("\n");
-	// 	printf("%s", ft_itoa_base(word->buf[i], 16));
-	// }
-	// printf("\n");
+}
+
+static void			compute_round(uint32_t buf64[64], uint32_t i, uint32_t th[8])
+{
+	uint32_t		t1;
+	uint32_t		t2;
+
+	t1 = th[7] + Q0(th[4]) + (th[4] & th[5]) ^ ((~th[4]) & th[6]) + g_k[i] + buf64[i];
+	t2 = Q1(th[0]) + (th[0] & th[1]) ^ (th[0] & th[2]) ^ (th[1] & th[2]);
+	i = 8;
+	while (--i > 0)
+		th[i] = th[i - 1];
+	th[4] += t1;
+	th[0] = t1 + t2;
+}
+
+/*
+**	th - temporiary hash
+*/
+
+static void			compute_chunk(uint32_t *buf, t_hash *hash, t_word32 *word)
+{
+	uint32_t		th[8];
+	uint32_t		buf64[64];
+	uint32_t		i;
+
+	i = 0;
+	while (++i <= 8)
+		th[i - 1] = hash->hash32[i - 1];
+	i = 0;
+	while (i < 64)
+	{
+		if (i < 16)
+			buf64[i] = buf[i];
+		else
+			buf64[i] = buf64[i - 16] + S0(buf64[i - 15])
+						+ buf64[i - 7] + S1(buf64[i - 2]);
+		++i;
+	}
+	i = 0;
+	while (i < 64)
+	{
+		compute_round(buf64, i, th);
+		++i;
+	}
+	ft_add_to_hash(hash, th, NULL);
 }
 
 char				*ft_sha256(t_input *input)
 {
+	char			*input_str;
 	char			*hash_str;
 	size_t			size;
 	t_hash			hash;
 	t_word32		word;
 
-
-	init_hash_sha256(&hash);
-	init_word_sha256(input, &word);
+	input_str = ft_strdup(input->input_str);
+	init_hash_sha256(input->endian, &hash);
+	init_word_sha256(input_str, input->endian, &word);
+	ft_strdel(&input_str);
 	size = 0;
 	while (size < word.size)
 	{
-		//compute_chunk((uint32_t *)&word.buf[size], &hash, &word);
+		compute_chunk((uint32_t *)&word.buf[size], &hash, &word);
 		size += 64;
 	}
-	// проверка на endian на машина с BIGe нужно свапнуть порядок байт
-	hash.hash32[0] = swap_uint32(hash.hash32[0]);
-	hash.hash32[1] = swap_uint32(hash.hash32[1]);
-	hash.hash32[2] = swap_uint32(hash.hash32[2]);
-	hash.hash32[3] = swap_uint32(hash.hash32[3]);
-	size = 0;
-	hash_str = NULL;
-	while (size < hash.size)
-	{
-		hash_str = ft_strjoin_pro(hash_str,
-					ft_i32toa_base(hash.hash32[size], 16), BOTH);
-		++size;
-	}
+	if (input->endian == LITTLE)
+		ft_hash_swap_byte(&hash);
+	hash_str = ft_hash_to_ascii(&hash);
 	ft_memdel((void **)&hash.hash32);
 	ft_memdel((void **)&word.buf);
-	//ft_putendl_fd("I'm here!", STDERR_FILENO);
 	return (hash_str);
 }
