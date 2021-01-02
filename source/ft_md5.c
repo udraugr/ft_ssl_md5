@@ -6,45 +6,13 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/29 20:35:14 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 16:03:35 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 19:35:05 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ssl.h"
 
-char				*ft_itoa_base(uint32_t num, uint8_t base)
-{
-	char			digits[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-	char			result[100];
-	uint32_t		i;
-	char			*ascii;
 
-	if (base == 1 || base > 16)
-		return (NULL);
-	i = 0;
-	while (num / base)
-	{
-		result[i] = digits[num % base];
-		num /= base;
-		++i;
-	}
-	// ft_putendl_fd("I'm here!", STDERR_FILENO);
-	result[i] = digits[num];
-	result[i + 1] = '\0';	
-	// ft_printf("ascii= %p\n", ascii);
-	if (!(ascii = ft_strnew(ft_strlen(result))))
-	{
-		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
-		exit(FAIL);
-	}
-	i = 0;
-	while (result[i])
-	{
-		ascii[ft_strlen(result) - 1 - i] = result[i];
-		++i;
-	}
-	return (ascii);
-}
 
 static void			init_hash_md5(t_hash *hash)
 {
@@ -64,7 +32,7 @@ static void			init_hash_md5(t_hash *hash)
 
 
 #include <stdio.h>
-static void			init_word_md5(t_input *input, t_word32 *word)
+static void			init_word_md5(char *input_str, t_word32 *word)
 {
 	static uint32_t		k[] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
 		0xf57c0faf, 0x4787c62a, 0xa8304613, 0xfd469501, 0x698098d8, 0x8b44f7af,
@@ -88,7 +56,7 @@ static void			init_word_md5(t_input *input, t_word32 *word)
 
 	word->k = k;
 	word->s = s;
-	l = ft_strlen(input->input_str);
+	l = ft_strlen(input_str);
 	// for (size_t i = 0; i < l; ++i)
 	// {
 	// 	if (i % 4 == 0)
@@ -103,7 +71,7 @@ static void			init_word_md5(t_input *input, t_word32 *word)
 		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
 		exit(FAIL);
 	}
-	ft_memcpy(word->buf, input->input_str, l);
+	ft_memcpy(word->buf, input_str, l);
 	word->buf[l] = 0x80;
 	// проверка на endian на машина с BIGe нужно свапнуть порядок байт
 	l *= 8;
@@ -171,20 +139,23 @@ static void			compute_chunk(uint32_t *buf, t_hash *hash, t_word32 *word)
 
 char				*ft_md5(t_input *input)
 {
+	char			*input_str;
 	char			*hash_str;
 	size_t			size;
 	t_hash			hash;
 	t_word32		word;
 
-
+	 input_str = ft_strdup(input->input_str);
 	init_hash_md5(&hash);
-	init_word_md5(input, &word);
+	//ft_putendl_fd(input->input_str, 2);
+	init_word_md5(input_str, &word);
+	//ft_putendl_fd(input->input_str, 2);
+	ft_strdel(&input_str);
 	size = 0;
 	while (size < word.size)
 	{
 		compute_chunk((uint32_t *)&word.buf[size], &hash, &word);
 		size += 64;
-		// printf("%x%x%x%x\n", hash.hash32[0], hash.hash32[1], hash.hash32[2], hash.hash32[3]);
 	}
 	// проверка на endian на машина с BIGe нужно свапнуть порядок байт
 	hash.hash32[0] = swap_uint32(hash.hash32[0]);
@@ -193,15 +164,13 @@ char				*ft_md5(t_input *input)
 	hash.hash32[3] = swap_uint32(hash.hash32[3]);
 	size = 0;
 	hash_str = NULL;
-	// ft_printf("word.buf = %p\n", word.buf);
 	while (size < hash.size)
 	{
 		hash_str = ft_strjoin_pro(hash_str,
-					ft_itoa_base(hash.hash32[size], 16), BOTH);
+					ft_i32toa_base(hash.hash32[size], 16), BOTH);
 		++size;
 	}
 	ft_memdel((void **)&hash.hash32);
 	ft_memdel((void **)&word.buf);
-	//ft_putendl_fd("I'm here!", STDERR_FILENO);
 	return (hash_str);
 }

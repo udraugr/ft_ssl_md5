@@ -5,6 +5,7 @@ FILES:= main.c\
 		ft_print_hash.c\
 		swap_byte_order.c\
 		hash_operations.c\
+		ft_itoa_base.c\
 		ft_md5.c\
 		ft_sha256.c
 

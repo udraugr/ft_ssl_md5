@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:43 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 16:58:35 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 18:35:27 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,9 +55,6 @@ static uint8_t				get_info_flags(char **flags,
 											t_input *input,
 											t_read_from_stdin *stdin_read)
 {
-	char					*str_for_hash;
-	char					*hash;
-
 	if (!flags || !flags[*i])
 		return (FAIL);
 	if (!ft_strcmp(flags[*i], "-q"))
@@ -65,32 +62,7 @@ static uint8_t				get_info_flags(char **flags,
 	else if (!ft_strcmp(flags[*i], "-r"))
 		input->flags |= FLAG_R;
 	else if (!ft_strcmp(flags[*i], "-s"))
-	{
-		if (!flags[*i + 1])
-		{
-			ft_putendl_fd("-s\toption requires an argument\n", STDERR_FILENO);
-			return (FAIL);
-		}
-		if (!(str_for_hash = ft_strnew(ft_strlen(flags[*i + 1]) + 2)))
-		{
-			ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
-			exit(FAIL);
-		}
-		str_for_hash[0] = '"';
-		ft_strcpy(&str_for_hash[1], flags[*i + 1]);
-		str_for_hash[ft_strlen(flags[*i + 1]) + 1] = '"';
-		input->from = str_for_hash;
-		input->input_str = ft_strdup(flags[*i + 1]);
-		input->flags |= FLAG_S;
-		hash = input->hash_func(input);
-		ft_print_hash(hash, input);
-		ft_strdel(&hash);
-		ft_strdel(&input->input_str);
-		ft_strdel(&input->from);
-		input->flags &= ~FLAG_S;
-		*i += 1;
-		stdin_read->need_read = FALSE;
-	}
+		return (get_str_input(flags, i, input, stdin_read));
 	else if (!ft_strcmp(flags[*i], "-p"))
 	{
 		input->flags |= FLAG_P;

@@ -1,0 +1,13 @@
+make
+echo "Hello, world!\n"${TERM_SESSION_ID}${ITERM_SESSION_ID}${PATH} | ./test_for_my_func > t1
+echo "Hello, world!\n"${TERM_SESSION_ID}${ITERM_SESSION_ID}${PATH} | ./test_for_my_func >> t1
+echo "Hello, world!\n"${TERM_SESSION_ID}${ITERM_SESSION_ID}${PATH} | ./test_for_my_func >> t1
+echo "Hello, world!\n"${TERM_SESSION_ID}${ITERM_SESSION_ID}${PATH} | ./test_for_md5 > t2
+echo "Hello, world!\n"${TERM_SESSION_ID}${ITERM_SESSION_ID}${PATH} | ./test_for_md5 >> t2
+echo "Hello, world!\n"${TERM_SESSION_ID}${ITERM_SESSION_ID}${PATH} | ./test_for_md5 >> t2
+./ft_ssl md5 t2 >> t1
+md5 t2 >> t2
+printf "\033[31;1m|------NOW DIFF------|\n\033[0m"
+diff t1 t2
+printf "\033[32;1m|------END DIFF------|\n\033[0m"
+rm t1 t2

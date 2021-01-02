@@ -1,1 +1,3 @@
-./ft_ssl md5 -s "hello, world\!" -s -s -s -s -p -p -p -q -r -s TUT
+./ft_ssl md5 -s "hello, world\!" -s -s -r -s -s -p -p -p -q -r -s TUT
+echo ""
+./ft_ssl md5 author

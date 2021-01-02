@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:37 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 16:56:18 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 19:30:49 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,8 @@ typedef u_int8_t	uint8_t;
 # define I(X, Y, Z) (uint32_t)(Y ^ (X | ~Z))
 
 # define ROTATE_LEFT(X, N) (uint32_t)((X << N) | (X >> (32 - N)))
+
+# define CEIL(X) (size_t)(X > (size_t)(X)) ? (size_t)(X + 1.f): (size_t)(X)
 
 enum
 {
@@ -92,13 +94,18 @@ typedef struct			s_hash
 	size_t				size;
 }						t_hash;
 
+uint8_t					get_str_input(char **flags,
+										size_t *i,
+										t_input *input,
+										t_read_from_stdin *stdin_read);
 void					get_std_input(t_input *input,
 										t_read_from_stdin *stdin_read);
 void					get_file_input(char **argv, size_t i, t_input *input);
 
 void					ft_print_hash(char *hash, t_input *input);
 
-char					*ft_itoa_base(uint32_t num, uint8_t base);
+char					*ft_i32toa_base(uint32_t num, uint8_t base);
+char					*ft_i64toa_base(uint64_t num, uint8_t base);
 uint64_t				swap_uint64(uint64_t x);
 uint32_t				swap_uint32(uint32_t x);
 

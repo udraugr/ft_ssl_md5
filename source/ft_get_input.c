@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 18:45:52 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 16:55:40 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 19:44:55 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 char				*read_from_fd(int fd)
 {
 	char			*str;
-	char			buff[501];
+	char			buff[65];
 	uint32_t		len;
 
 	if (!(str = ft_strnew(0)))
@@ -23,7 +23,7 @@ char				*read_from_fd(int fd)
 		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
 		exit(FAIL);
 	}
-	while ((len = read(fd, buff, 500)) > 0)
+	while ((len = read(fd, buff, 64)) > 0)
 	{
 		buff[len] = '\0';
 		if (!(str = ft_strjoin_pro(str, buff, ONLY_FIRST)))
@@ -38,6 +38,30 @@ char				*read_from_fd(int fd)
 		return (NULL);
 	}
 	return (str);
+}
+
+uint8_t				get_str_input(char **flags,
+									size_t *i,
+									t_input *input,
+									t_read_from_stdin *stdin_read)
+{
+	char			*hash;
+
+	if (!flags[*i + 1])
+	{
+		ft_putendl_fd("-s\toption requires an argument\n", STDERR_FILENO);
+		return (FAIL);
+	}
+	input->from = flags[*i + 1];
+	input->input_str = flags[*i + 1];
+	input->flags |= FLAG_S;
+	hash = input->hash_func(input);
+	ft_print_hash(hash, input);
+	ft_strdel(&hash);
+	input->flags &= ~FLAG_S;
+	*i += 1;
+	stdin_read->need_read = FALSE;
+	return (SUCCESS);
 }
 
 void				get_std_input(t_input *input, t_read_from_stdin *stdin_read)

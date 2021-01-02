@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 18:17:13 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 16:08:16 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 19:31:38 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,7 @@ char				*ft_sha256(t_input *input)
 	while (size < hash.size)
 	{
 		hash_str = ft_strjoin_pro(hash_str,
-					ft_itoa_base(hash.hash32[size], 16), BOTH);
+					ft_i32toa_base(hash.hash32[size], 16), BOTH);
 		++size;
 	}
 	ft_memdel((void **)&hash.hash32);
