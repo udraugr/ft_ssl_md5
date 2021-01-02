@@ -30,7 +30,7 @@ lib:
 	@make -C libftprintf
 
 $(NAME): $(OBJECT_DIR) $(OBJECT)
-	@gcc $(WALL) $(INCLUDE) $(LIBFTPRINTF) $(OBJECT) -o $(NAME)
+	@clang $(WALL) $(INCLUDE) $(OBJECT) $(LIBFTPRINTF) -o $(NAME)
 	@printf "\033[?25h"
 	@printf "\r\033[32;1m$(NAME) have been created!                                                  \n\033[0m"
 

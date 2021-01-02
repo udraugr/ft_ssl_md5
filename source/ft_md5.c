@@ -6,11 +6,41 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/29 20:35:14 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/01 22:42:16 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 13:11:19 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ssl.h"
+
+char				*ft_itoa_base(uint32_t num, uint8_t base)
+{
+	char			digits[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
+	char			result[100];
+	uint32_t		i;
+	char			*ascii;
+
+	if (base == 1 || base > 16)
+		return (NULL);
+	i = 0;
+	while (num / base)
+	{
+		result[i] = digits[num % base];
+		num /= base;
+		++i;
+	}
+	// ft_putendl_fd("I'm here!", STDERR_FILENO);
+	result[i] = digits[num];
+	result[i + 1] = '\0';	
+	// ft_printf("ascii= %p\n", ascii);
+	ascii = ft_strnew(ft_strlen(result));
+	i = 0;
+	while (result[i])
+	{
+		ascii[ft_strlen(result) - 1 - i] = result[i];
+		++i;
+	}
+	return (ascii);
+}
 
 static void			init_hash_md5(t_hash *hash)
 {
@@ -20,9 +50,20 @@ static void			init_hash_md5(t_hash *hash)
 	hash->hash32[1] = 0xEFCDAB89;
 	hash->hash32[2] = 0x98BADCFE;
 	hash->hash32[3] = 0x10325476;
+	// проверка на endian на машина с BIGe нужно свапнуть порядок байт
 	hash->size = 4;
 }
 
+uint64_t	swap_uint64(uint64_t x)
+{
+	x = ((x << 8) & 0xFF00FF00FF00FF00ULL) |
+		((x >> 8) & 0x00FF00FF00FF00FFULL);
+	x = ((x << 16) & 0xFFFF0000FFFF0000ULL) |
+		((x >> 16) & 0x0000FFFF0000FFFFULL);
+	return (x << 32) | (x >> 32);
+}
+
+#include <stdio.h>
 static void			init_word_md5(t_input *input, t_word32 *word)
 {
 	static uint32_t		k[] = {0xd76aa478, 0xe8c7b756, 0x242070db, 0xc1bdceee,
@@ -48,13 +89,29 @@ static void			init_word_md5(t_input *input, t_word32 *word)
 	word->k = k;
 	word->s = s;
 	l = ft_strlen(input->input_str);
+	// for (size_t i = 0; i < l; ++i)
+	// {
+	// 	if (i % 4 == 0)
+	// 		printf("\n");
+	// 	printf("%s", ft_itoa_base(input->input_str, 16));
+	// }
+	// printf("\n");
 	mod64 = (l + 1) % 64;
-	nl = (mod64 > 56) ? l + 64 - (mod64 - 56) : l + 56 - mod64;
-	word->buf = ft_strnew(nl + 8); // herota
+	nl = (mod64 > 56) ? l + 1 + 64 - (mod64 - 56) : l + 1 + 56 - mod64;
+	word->buf = ft_strnew(nl + 8);
 	ft_memcpy(word->buf, input->input_str, l);
-	word->buf[l - 1] = 0x80; // herota
-	ft_memcpy(&word[nl], &l, 8);
+	word->buf[l] = 0x80;
+	// проверка на endian на машина с BIGe нужно свапнуть порядок байт
+	l *= 8;
+	ft_memcpy(&word->buf[nl], &l, 8);
 	word->size = nl + 8;
+	// for (size_t i = 0; i < word->size; ++i)
+	// {
+	// 	if (i % 4 == 0)
+	// 		printf("\n");
+	// 	printf("%s", ft_itoa_base(word->buf[i], 16));
+	// }
+	// printf("\n");
 }
 
 /*
@@ -72,7 +129,7 @@ void				compute_chunk(uint32_t *buf, t_hash *hash, t_word32 *word)
 	th[2] = hash->hash32[2];
 	th[3] = hash->hash32[3];
 	i = 0;
-	while (i < 63)
+	while (i < 64)
 	{
 		if (i / 16 == 0)
 		{
@@ -94,11 +151,12 @@ void				compute_chunk(uint32_t *buf, t_hash *hash, t_word32 *word)
 			func = I(th[1], th[2], th[3]);
 			g = (7 * i) % 16;
 		}
-		func = func + th[0] + word->k[i] + buf[g];
+		func += th[0] + word->k[i] + buf[g];
 		th[0] = th[3];
 		th[3] = th[2];
 		th[2] = th[1];
-		th[1] = th[1] + (func << word->s[i]);
+		th[1] += ROTATE_LEFT(func, word->s[i]);
+		printf("%x%x%x%x\n", th[0], th[1], th[2], th[3]);
 		++i;
 	}
 	hash->hash32[0] += th[0];
@@ -107,29 +165,12 @@ void				compute_chunk(uint32_t *buf, t_hash *hash, t_word32 *word)
 	hash->hash32[3] += th[3];
 }
 
-char				*ft_itoa_base(uint32_t num, uint8_t base)
+uint32_t			swap_uint32(uint32_t x)
 {
-	char			digits[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
-	char			result[100];
-	uint32_t		i;
-	char			*ascii;
+	x = ((x << 8) & 0xFF00FF00) | ((x >> 8) & 0xFF00FF);
+	return (x << 16) | (x >> 16);
 
-	if (base == 1 || base > 16)
-		return (NULL);
-	i = 0;
-	while (num / base)
-	{
-		result[i] = digits[num % base];
-		num /= base;
-		++i;
-	}
-	// ft_putendl_fd("I'm here!", STDERR_FILENO);
-	result[i] = digits[num];
-	result[i + 1] = '\0';
-	// ft_printf("ascii= %p\n", ascii);
-	return (ft_strdup(result));
 }
-
 
 char				*ft_md5(t_input *input)
 {
@@ -144,16 +185,22 @@ char				*ft_md5(t_input *input)
 	size = 0;
 	while (size < word.size)
 	{
-		compute_chunk(&word.buf[size], &hash, &word);
-		size += 16;
+		compute_chunk((uint32_t *)&word.buf[size], &hash, &word);
+		size += 64;
+		// printf("%x%x%x%x\n", hash.hash32[0], hash.hash32[1], hash.hash32[2], hash.hash32[3]);
 	}
+	// проверка на endian на машина с BIGe нужно свапнуть порядок байт
+	hash.hash32[0] = swap_uint32(hash.hash32[0]);
+	hash.hash32[1] = swap_uint32(hash.hash32[1]);
+	hash.hash32[2] = swap_uint32(hash.hash32[2]);
+	hash.hash32[3] = swap_uint32(hash.hash32[3]);
 	size = 0;
 	hash_str = NULL;
 	// ft_printf("word.buf = %p\n", word.buf);
 	while (size < 4)
 	{
 		hash_str = ft_strjoin_pro(hash_str,
-					ft_itoa_base(hash.hash32[size], 16), 0);
+					ft_itoa_base(hash.hash32[size], 16), BOTH);
 		++size;
 	}
 	free(word.buf);

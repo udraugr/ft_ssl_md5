@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:37 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/01 22:41:15 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 00:38:55 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,11 @@
 
 # include "../libftprintf/ft_printf/printf.h"
 # include <fcntl.h>
+
+typedef u_int64_t uint64_t;
+typedef u_int32_t uint32_t;
+typedef u_int16_t uint16_t;
+typedef u_int8_t uint8_t;
 
 # define FLAG_Q 0x1000
 # define FLAG_R 0x100
@@ -26,7 +31,7 @@
 # define H(X, Y, Z) (uint32_t)(X ^ Y ^ Z)
 # define I(X, Y, Z) (uint32_t)(Y ^ (X | ~Z))
 
-# define ROTATE_LEFT(X, N) (uint32_t)((x << n) | (x >> (32 - n)))
+# define ROTATE_LEFT(X, N) (uint32_t)((X << N) | (X >> (32 - N)))
 
 enum
 {
