@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:37 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 00:38:55 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 13:56:02 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,10 @@ void 					get_std_input(t_input *input);
 void					get_file_input(char **argv, size_t i, t_input *input);
 
 void					ft_print_hash(char *hash, t_input *input);
+
+char					*ft_itoa_base(uint32_t num, uint8_t base);
+uint64_t				swap_uint64(uint64_t x);
+uint32_t				swap_uint32(uint32_t x);
 
 char					*ft_md5(t_input *input);
 char					*ft_sha256(t_input *input);

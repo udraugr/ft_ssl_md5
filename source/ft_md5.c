@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/29 20:35:14 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 13:11:19 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/02 14:06:18 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,14 +54,6 @@ static void			init_hash_md5(t_hash *hash)
 	hash->size = 4;
 }
 
-uint64_t	swap_uint64(uint64_t x)
-{
-	x = ((x << 8) & 0xFF00FF00FF00FF00ULL) |
-		((x >> 8) & 0x00FF00FF00FF00FFULL);
-	x = ((x << 16) & 0xFFFF0000FFFF0000ULL) |
-		((x >> 16) & 0x0000FFFF0000FFFFULL);
-	return (x << 32) | (x >> 32);
-}
 
 #include <stdio.h>
 static void			init_word_md5(t_input *input, t_word32 *word)
@@ -117,7 +109,7 @@ static void			init_word_md5(t_input *input, t_word32 *word)
 /*
 **	th - temporiary hash
 */
-void				compute_chunk(uint32_t *buf, t_hash *hash, t_word32 *word)
+static void			compute_chunk(uint32_t *buf, t_hash *hash, t_word32 *word)
 {
 	uint32_t		th[4];
 	uint32_t		func;
@@ -165,13 +157,6 @@ void				compute_chunk(uint32_t *buf, t_hash *hash, t_word32 *word)
 	hash->hash32[3] += th[3];
 }
 
-uint32_t			swap_uint32(uint32_t x)
-{
-	x = ((x << 8) & 0xFF00FF00) | ((x >> 8) & 0xFF00FF);
-	return (x << 16) | (x >> 16);
-
-}
-
 char				*ft_md5(t_input *input)
 {
 	char			*hash_str;
@@ -197,7 +182,7 @@ char				*ft_md5(t_input *input)
 	size = 0;
 	hash_str = NULL;
 	// ft_printf("word.buf = %p\n", word.buf);
-	while (size < 4)
+	while (size < hash.size)
 	{
 		hash_str = ft_strjoin_pro(hash_str,
 					ft_itoa_base(hash.hash32[size], 16), BOTH);
