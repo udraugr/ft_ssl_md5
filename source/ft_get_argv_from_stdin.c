@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 17:19:48 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/04 19:25:56 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 20:51:18 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ static size_t		word_count(char *str)
 		{
 			word = (whitespaces) ? word + 1 : word;
 			whitespaces = 0;
-			while (str[++i] && !ft_strchr(" \t\n\'\"", str[i]))
+			while (str[i] && !ft_strchr(" \t\n\'\"", str[i]))
 				++i;
 		}
 	}
@@ -58,6 +58,7 @@ static char			**parse(char *str)
 	size_t			j;
 	size_t			word;
 	uint8_t			whitespaces;
+	char			quote;
 
 	args = NULL;
 	word = word_count(str);
@@ -75,27 +76,17 @@ static char			**parse(char *str)
 			++i;
 			whitespaces = 1;
 		}
-		if (str[i] == '\'')
+		if (str[i] == '\'' || str[i] == '\"')
 		{
+			quote = str[i];
 			begin = (whitespaces) ? i : begin;
 			whitespaces = 0;
-			ft_memmove(&str[i], &str[i + 1], ft_strlen(&str[i + 1]));
+			ft_memmove(&str[i], &str[i + 1], ft_strlen(&str[i + 1]) + 1);
 			++i;
-			while (str[i] && str[i] != '\'')
+			while (str[i] && str[i] != quote)
 				++i;
 			if (str[i])
-				ft_memmove(&str[i], &str[i + 1], ft_strlen(&str[i + 1]));
-		}
-		else if (str[i] == '\"')
-		{
-			begin = (whitespaces) ? i : begin;
-			whitespaces = 0;
-			ft_memmove(&str[i], &str[i + 1], ft_strlen(&str[i + 1]));
-			++i;
-			while (str[i] && str[i] != '\"')
-				++i;
-			if (str[i])
-				ft_memmove(&str[i], &str[i + 1], ft_strlen(&str[i + 1]));
+				ft_memmove(&str[i], &str[i + 1], ft_strlen(&str[i + 1]) + 1);
 		}
 		else
 		{
@@ -118,6 +109,7 @@ static void			read_stdin(char **str)
 	char			c[2];
 	char			*tmp;
 
+	ft_putstr_fd("ft_ssl> ", STDOUT_FILENO);
 	ft_strdel(str);
 	while ((len = read(STDIN_FILENO, &c, 1)) > 0)
 	{
@@ -150,10 +142,7 @@ int					get_argv_from_stdin(char ***args, int argc, char **argv)
 	{
 		str = NULL;
 		while (!str || !ft_strcmp(str, ""))
-		{
-			ft_putstr_fd("ft_ssl> ", STDOUT_FILENO);
 			read_stdin(&str);
-		}
 		if (!ft_strcmp(str, "exit"))
 			stadia = STOP;
 		if (stadia != STOP && !(*args = parse(str)))
