@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_sha384.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/04 15:30:01 by udraugr-          #+#    #+#             */
+/*   Updated: 2021/01/04 15:30:21 by udraugr-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/ssl.h"
 
 static uint64_t		g_k[] = {0x428a2f98d728ae22, 0x7137449123ef65cd,
@@ -64,10 +76,11 @@ static void			init_word_sha384(char *input_str, uint8_t endian,
 	if (endian == LITTLE)
 		l = swap_uint64(l);
 	ft_memcpy(&word->buf[nl], &l, 8);
-	word->size = nl + 8;	
+	word->size = nl + 8;
 }
 
-static void			compute_round(uint64_t buf64[64], uint64_t i, uint64_t th[8])
+static void			compute_round(uint64_t buf64[64], uint64_t i,
+									uint64_t th[8])
 {
 	uint64_t		t1;
 	uint64_t		t2;

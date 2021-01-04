@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/29 20:35:14 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/04 01:00:19 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 15:33:42 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,25 +71,21 @@ static void			compute_round(uint32_t *buf, uint32_t i, uint32_t th[4])
 	uint32_t		g;
 
 	if (i / 16 == 0)
-	{
 		func = F(th[1], th[2], th[3]);
-		g = i;
-	}
 	else if (i / 16 == 1)
-	{
 		func = G(th[1], th[2], th[3]);
-		g = (5 * i + 1) % 16;
-	}
 	else if (i / 16 == 2)
-	{
 		func = H(th[1], th[2], th[3]);
-		g = (3 * i + 5) % 16;
-	}
 	else
-	{
 		func = I(th[1], th[2], th[3]);
+	if (i / 16 == 0)
+		g = i;
+	else if (i / 16 == 1)
+		g = (5 * i + 1) % 16;
+	else if (i / 16 == 2)
+		g = (3 * i + 5) % 16;
+	else
 		g = (7 * i) % 16;
-	}
 	func += th[0] + g_k[i] + buf[g];
 	th[0] = th[3];
 	th[3] = th[2];

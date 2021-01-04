@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 18:45:52 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/04 01:06:13 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 15:13:09 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,20 +16,19 @@ char				*read_from_fd(int fd, t_input *input)
 {
 	char			*str;
 	char			*tmp;
-	char			buff[4096];
+	char			buff[64];
 	int				len;
 
 	if (!(str = ft_strnew(0)))
 		ft_exit_malloc_crash();
-	input->length = 0;
-	while ((len = read(fd, buff, 4095)) > 0)
+	while ((len = read(fd, buff, 63)) > 0)
 	{
 		buff[len] = '\0';
 		tmp = str;
 		if (!(str = ft_strnew(input->length + len)))
 			ft_exit_malloc_crash();
 		ft_memcpy(str, tmp, input->length);
-		ft_memcpy(&str[input->length], buff, len);
+		ft_memcpy(str + input->length, buff, len);
 		input->length += len;
 		ft_strdel(&tmp);
 	}
@@ -70,6 +69,7 @@ void				get_std_input(t_input *input, t_read_from_stdin *stdin_read)
 {
 	char			*hash;
 
+	input->length = 0;
 	if (stdin_read->read_from_stdin == FALSE)
 	{
 		if (!(input->input_str = read_from_fd(STDIN_FILENO, input)))
@@ -95,6 +95,7 @@ void				get_file_input(char **argv, size_t i, t_input *input)
 
 	while (argv && argv[i])
 	{
+		input->length = 0;
 		if ((fd = open(argv[i], O_RDONLY)) == -1)
 			ft_putendl_fd("open: cat't take fd for file!", STDERR_FILENO);
 		++i;

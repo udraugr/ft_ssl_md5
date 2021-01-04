@@ -1,3 +1,11 @@
 ./ft_ssl md5 -s "hello, world\!" -s -s -r -s -s -p -p -p -q -r -s TUT
 echo ""
 ./ft_ssl md5 author
+./ft_ssl md5 ft_ssl Makefile source/*
+./ft_ssl md5 -r ft_ssl
+./ft_ssl md5 -s "Hi"
+./ft_ssl md5 -q ft_ssl
+./ft_ssl md5 -r -s "Hi"
+./ft_ssl md5 -r -q ft_ssl
+./ft_ssl md5 -r -s "hi" -q ./ft_ssl
+./ft_ssl md5 -p

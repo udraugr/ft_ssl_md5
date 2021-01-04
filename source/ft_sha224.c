@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   ft_sha224.c                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2021/01/04 15:27:18 by udraugr-          #+#    #+#             */
+/*   Updated: 2021/01/04 15:29:02 by udraugr-         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../include/ssl.h"
 
 static uint32_t		g_k[] = {0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
@@ -9,7 +21,7 @@ static uint32_t		g_k[] = {0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
 	0x4D2C6DFC, 0x53380D13, 0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85,
 	0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3, 0xD192E819, 0xD6990624,
 	0xF40E3585, 0x106AA070, 0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5,
-	0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,	0x748F82EE, 0x78A5636F,
+	0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3, 0x748F82EE, 0x78A5636F,
 	0x84C87814, 0x8CC70208, 0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2};
 
 static void			init_hash_sha224(uint8_t endian, t_hash *hash)
@@ -51,7 +63,8 @@ static void			init_word_sha224(char *input_str, uint8_t endian,
 	word->size = nl + 8;
 }
 
-static void			compute_round(uint32_t buf64[64], uint32_t i, uint32_t th[8])
+static void			compute_round(uint32_t buf64[64], uint32_t i,
+									uint32_t th[8])
 {
 	uint32_t		t1;
 	uint32_t		t2;
