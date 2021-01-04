@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:43 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 21:35:34 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 04:28:23 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,16 @@
 
 static t_algorithm			*get_algorithms(void)
 {
-	static t_algorithm		algorithms[] = {ft_md5, "md5", "MD5",
-											ft_sha256, "sha256", "SHA256",
-											0, 0, 0};
+	static t_algorithm		algorithms[] = {
+							{ft_md5, "md5", "MD5"},
+							{ft_sha224, "sha224", "SHA224"},
+							{ft_sha256, "sha256", "SHA256"},
+							{ft_sha384, "sha384", "SHA384"},
+							{ft_sha512, "sha512", "SHA512"},
+							{ft_sha512_224, "sha512/224", "SHA512/224"},
+							{ft_sha512_256, "sha512/256", "SHA512/256"},
+							{0, {0}, {0}}
+											};
 
 	return (algorithms);
 }

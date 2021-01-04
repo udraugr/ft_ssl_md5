@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:37 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/03 00:03:05 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 04:28:37 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,9 @@ typedef u_int8_t	uint8_t;
 # define ROTL(X, N) (uint32_t)((X << N) | (X >> (32 - N)))
 # define ROTR(X, N) (uint32_t)((X >> N) | (X << (32 - N)))
 
+# define ROTL64(X, N) (uint64_t)((X << N) | (X >> (64 - N)))
+# define ROTR64(X, N) (uint64_t)((X >> N) | (X << (64 - N)))
+
 # define CEIL(X) (size_t)(X > (size_t)(X)) ? (size_t)(X + 1.f): (size_t)(X)
 
 /*
@@ -39,10 +42,19 @@ typedef u_int8_t	uint8_t;
 ** Functions for sha256
 */
 
-# define S0(X) ROTR(X, 7) ^ ROTR(X, 18) ^ (X >>  3)
-# define S1(X) ROTR(X, 17) ^ ROTR(X, 19) ^ (X >> 10)
-# define Q0(X) ROTR(X, 6) ^ ROTR(X, 11) ^ ROTR(X, 25)
-# define Q1(X) ROTR(X, 2) ^ ROTR(X, 13) ^ ROTR(X, 22)
+# define S0(X) (ROTR(X, 7) ^ ROTR(X, 18) ^ (X >> 3))
+# define S1(X) (ROTR(X, 17) ^ ROTR(X, 19) ^ (X >> 10))
+# define Q0(X) (ROTR(X, 6) ^ ROTR(X, 11) ^ ROTR(X, 25))
+# define Q1(X) (ROTR(X, 2) ^ ROTR(X, 13) ^ ROTR(X, 22))
+
+/*
+** Functions for sha512
+*/
+
+# define S0_64(X) (ROTR64(X, 1) ^ ROTR64(X, 8) ^ (X >> 7))
+# define S1_64(X) (ROTR64(X, 19) ^ ROTR64(X, 61) ^ (X >> 6))
+# define Q0_64(X) (ROTR64(X, 14) ^ ROTR64(X, 18) ^ ROTR64(X, 41))
+# define Q1_64(X) (ROTR64(X, 28) ^ ROTR64(X, 34) ^ ROTR64(X, 39))
 
 enum
 {
@@ -82,6 +94,7 @@ typedef struct			s_input
 	char				*from;
 	char				promt[60];
 	char				*(*hash_func)(struct s_input*);
+	size_t				length;
 	uint32_t			flags;
 	uint8_t				endian;
 }						t_input;
@@ -106,6 +119,8 @@ typedef struct			s_hash
 	size_t				size;
 }						t_hash;
 
+void					ft_exit_malloc_crash(void);
+
 uint8_t					get_str_input(char **flags,
 										size_t *i,
 										t_input *input,
@@ -129,6 +144,11 @@ void					ft_add_to_hash(t_hash *hash,
 										uint32_t *h32, uint64_t *h64);
 
 char					*ft_md5(t_input *input);
+char					*ft_sha224(t_input *input);
 char					*ft_sha256(t_input *input);
+char					*ft_sha384(t_input *input);
+char					*ft_sha512(t_input *input);
+char					*ft_sha512_224(t_input *input);
+char					*ft_sha512_256(t_input *input);
 
 #endif

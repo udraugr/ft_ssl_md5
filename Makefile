@@ -6,8 +6,14 @@ FILES:= main.c\
 		swap_byte_order.c\
 		hash_operations.c\
 		ft_itoa_base.c\
+		ft_exit_malloc_crash.c\
 		ft_md5.c\
-		ft_sha256.c
+		ft_sha224.c\
+		ft_sha256.c\
+		ft_sha384.c\
+		ft_sha512.c\
+		ft_sha512_224.c\
+		ft_sha512_256.c
 
 SOURCE_DIR:=source
 SOURCE:= $(addprefix $(SOURCE_DIR)/, $(FILES))
@@ -15,7 +21,7 @@ SOURCE:= $(addprefix $(SOURCE_DIR)/, $(FILES))
 OBJECT_DIR:=object
 OBJECT:= $(addprefix $(OBJECT_DIR)/, $(FILES:.c=.o))
 
-WWW:= -Wall -Wextra -Werror
+WWW:= -Wall -Wextra -Werror -g
 
 INCLUDE_DIR:=include
 H_FILES:= ssl.h\
@@ -33,7 +39,7 @@ lib:
 	@make -C libftprintf
 
 $(NAME): $(OBJECT_DIR) $(OBJECT)
-	@clang $(WALL) $(INCLUDE) $(OBJECT) $(LIBFTPRINTF) -o $(NAME)
+	@clang $(WWW) $(INCLUDE) $(OBJECT) $(LIBFTPRINTF) -o $(NAME)
 	@printf "\033[?25h"
 	@printf "\r\033[32;1m$(NAME) have been created!                                                  \n\033[0m"
 
@@ -44,7 +50,7 @@ $(OBJECT_DIR):
 $(OBJECT_DIR)/%.o: $(SOURCE_DIR)/%.c $(HEADERS)
 	@printf "\033[?25l"
 	@printf "\r\033[34;1mNow compiling $<!                                                                    "
-	@gcc $(WALL) $(INCLUDE) -c $< -o $@
+	@gcc $(WWW) $(INCLUDE) -c $< -o $@
 
 clean:
 	@rm -rf $(OBJECT_DIR)

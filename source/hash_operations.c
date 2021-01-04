@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/02 16:09:08 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 23:14:14 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 00:47:16 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,10 +55,7 @@ char				*ft_hash_to_ascii(t_hash *hash)
 		++size;
 	}
 	if (!hash_str)
-	{
-		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
-		exit(FAIL);
-	}
+		ft_exit_malloc_crash();
 	return (hash_str);
 }
 

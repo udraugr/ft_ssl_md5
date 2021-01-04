@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/12/29 20:35:14 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 23:46:11 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 01:00:19 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,10 +34,7 @@ static void			init_hash_md5(uint8_t endian, t_hash *hash)
 {
 	hash->hash64 = NULL;
 	if (!(hash->hash32 = ft_memalloc(sizeof(uint32_t) * 4)))
-	{
-		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
-		exit(FAIL);
-	}
+		ft_exit_malloc_crash();
 	hash->hash32[0] = 0x67452301;
 	hash->hash32[1] = 0xEFCDAB89;
 	hash->hash32[2] = 0x98BADCFE;
@@ -47,21 +44,18 @@ static void			init_hash_md5(uint8_t endian, t_hash *hash)
 	hash->size = 4;
 }
 
-static void			init_word_md5(char *input_str,
-									uint8_t endian, t_word32 *word)
+static void			init_word_md5(char *input_str, uint8_t endian,
+									t_word32 *word, t_input *input)
 {
 	size_t				l;
 	size_t				nl;
 	size_t				mod64;
 
-	l = ft_strlen(input_str);
+	l = input->length;
 	mod64 = (l + 1) % 64;
 	nl = (mod64 > 56) ? l + 1 + 64 - (mod64 - 56) : l + 1 + 56 - mod64;
 	if (!(word->buf = (unsigned char *)ft_strnew(nl + 8)))
-	{
-		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
-		exit(FAIL);
-	}
+		ft_exit_malloc_crash();
 	ft_memcpy(word->buf, input_str, l);
 	word->buf[l] = 0x80;
 	l *= 8;
@@ -107,7 +101,7 @@ static void			compute_round(uint32_t *buf, uint32_t i, uint32_t th[4])
 **	th - temporiary hash
 */
 
-static void			compute_chunk(uint32_t *buf, t_hash *hash, t_word32 *word)
+static void			compute_chunk(uint32_t *buf, t_hash *hash)
 {
 	uint32_t		th[4];
 	uint32_t		i;
@@ -132,14 +126,16 @@ char				*ft_md5(t_input *input)
 	t_hash			hash;
 	t_word32		word;
 
-	input_str = ft_strdup(input->input_str);
+	if (!(input_str = ft_strnew(input->length)))
+		ft_exit_malloc_crash();
+	ft_memcpy(input_str, input->input_str, input->length);
 	init_hash_md5(input->endian, &hash);
-	init_word_md5(input_str, input->endian, &word);
+	init_word_md5(input->input_str, input->endian, &word, input);
 	ft_strdel(&input_str);
 	size = 0;
 	while (size < word.size)
 	{
-		compute_chunk((uint32_t *)&word.buf[size], &hash, &word);
+		compute_chunk((uint32_t *)&word.buf[size], &hash);
 		size += 64;
 	}
 	if (input->endian == LITTLE)

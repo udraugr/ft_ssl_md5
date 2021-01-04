@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/02 19:24:04 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 19:50:35 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 03:59:09 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,14 +17,11 @@ char				*ft_i32toa_base(uint32_t num, uint8_t base)
 	char			*ascii;
 	uint32_t		i;
 
-	if (base == 1 || base > 16)
+	if (base < 2 || base > 16)
 		return (NULL);
 	i = 0;
 	if (!(ascii = ft_strnew(CEIL(256.f / (float)base * 4.f))))
-	{
-		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
-		exit(FAIL);
-	}
+		ft_exit_malloc_crash();
 	ft_memset(ascii, '0', 8);
 	i = 7;
 	while (num)
@@ -46,10 +43,7 @@ char				*ft_i64toa_base(uint64_t num, uint8_t base)
 		return (NULL);
 	i = 0;
 	if (!(ascii = ft_strnew(CEIL(256.f / (double)base * 4.f))))
-	{
-		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
-		exit(FAIL);
-	}
+		ft_exit_malloc_crash();
 	ft_memset(ascii, '0', 16);
 	i = 15;
 	while (num)

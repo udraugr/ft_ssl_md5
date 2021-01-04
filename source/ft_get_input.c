@@ -6,31 +6,32 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 18:45:52 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/02 19:44:55 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 01:06:13 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ssl.h"
 
-char				*read_from_fd(int fd)
+char				*read_from_fd(int fd, t_input *input)
 {
 	char			*str;
-	char			buff[65];
-	uint32_t		len;
+	char			*tmp;
+	char			buff[4096];
+	int				len;
 
 	if (!(str = ft_strnew(0)))
-	{
-		ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
-		exit(FAIL);
-	}
-	while ((len = read(fd, buff, 64)) > 0)
+		ft_exit_malloc_crash();
+	input->length = 0;
+	while ((len = read(fd, buff, 4095)) > 0)
 	{
 		buff[len] = '\0';
-		if (!(str = ft_strjoin_pro(str, buff, ONLY_FIRST)))
-		{
-			ft_putendl_fd("malloc can't allocate memory!", STDERR_FILENO);
-			exit(FAIL);
-		}
+		tmp = str;
+		if (!(str = ft_strnew(input->length + len)))
+			ft_exit_malloc_crash();
+		ft_memcpy(str, tmp, input->length);
+		ft_memcpy(&str[input->length], buff, len);
+		input->length += len;
+		ft_strdel(&tmp);
 	}
 	if (len == -1)
 	{
@@ -52,6 +53,7 @@ uint8_t				get_str_input(char **flags,
 		ft_putendl_fd("-s\toption requires an argument\n", STDERR_FILENO);
 		return (FAIL);
 	}
+	input->length = ft_strlen(flags[*i + 1]);
 	input->from = flags[*i + 1];
 	input->input_str = flags[*i + 1];
 	input->flags |= FLAG_S;
@@ -70,14 +72,14 @@ void				get_std_input(t_input *input, t_read_from_stdin *stdin_read)
 
 	if (stdin_read->read_from_stdin == FALSE)
 	{
-		if (!(input->input_str = read_from_fd(STDIN_FILENO)))
+		if (!(input->input_str = read_from_fd(STDIN_FILENO, input)))
 			return ;
 		stdin_read->read_from_stdin = TRUE;
 	}
 	else
 	{
 		if (!(input->input_str = ft_strnew(0)))
-			exit(FAIL);
+			ft_exit_malloc_crash();
 	}
 	input->from = NULL;
 	hash = input->hash_func(input);
@@ -88,7 +90,7 @@ void				get_std_input(t_input *input, t_read_from_stdin *stdin_read)
 
 void				get_file_input(char **argv, size_t i, t_input *input)
 {
-	uint32_t		fd;
+	int				fd;
 	char			*hash;
 
 	while (argv && argv[i])
@@ -96,9 +98,10 @@ void				get_file_input(char **argv, size_t i, t_input *input)
 		if ((fd = open(argv[i], O_RDONLY)) == -1)
 			ft_putendl_fd("open: cat't take fd for file!", STDERR_FILENO);
 		++i;
-		if (fd == -1 || !(input->input_str = read_from_fd(fd)))
+		if (fd == -1 || !(input->input_str = read_from_fd(fd, input)))
 			continue ;
-		input->from = ft_strdup(argv[i - 1]);
+		if (!(input->from = ft_strdup(argv[i - 1])))
+			ft_exit_malloc_crash();
 		hash = input->hash_func(input);
 		ft_print_hash(hash, input);
 		ft_strdel(&hash);

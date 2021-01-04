@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_sha256.c                                        :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/01/01 18:17:13 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/04 01:01:25 by udraugr-         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "../include/ssl.h"
 
 static uint32_t		g_k[] = {0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
@@ -24,25 +12,25 @@ static uint32_t		g_k[] = {0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5,
 	0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3,	0x748F82EE, 0x78A5636F,
 	0x84C87814, 0x8CC70208, 0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2};
 
-static void			init_hash_sha256(uint8_t endian, t_hash *hash)
+static void			init_hash_sha224(uint8_t endian, t_hash *hash)
 {
 	hash->hash64 = NULL;
 	if (!(hash->hash32 = ft_memalloc(sizeof(uint32_t) * 8)))
 		ft_exit_malloc_crash();
-	hash->hash32[0] = 0x6A09E667;
-	hash->hash32[1] = 0xBB67AE85;
-	hash->hash32[2] = 0x3C6EF372;
-	hash->hash32[3] = 0xA54FF53A;
-	hash->hash32[4] = 0x510E527F;
-	hash->hash32[5] = 0x9B05688C;
-	hash->hash32[6] = 0x1F83D9AB;
-	hash->hash32[7] = 0x5BE0CD19;
+	hash->hash32[0] = 0xC1059ED8;
+	hash->hash32[1] = 0x367CD507;
+	hash->hash32[2] = 0x3070DD17;
+	hash->hash32[3] = 0xF70E5939;
+	hash->hash32[4] = 0xFFC00B31;
+	hash->hash32[5] = 0x68581511;
+	hash->hash32[6] = 0x64F98FA7;
+	hash->hash32[7] = 0xBEFA4FA4;
 	if (endian == BIG)
 		ft_hash_swap_byte(hash);
 	hash->size = 8;
 }
 
-static void			init_word_sha256(char *input_str, uint8_t endian,
+static void			init_word_sha224(char *input_str, uint8_t endian,
 									t_word32 *word, t_input *input)
 {
 	size_t				l;
@@ -111,7 +99,7 @@ static void			compute_chunk(uint32_t *buf, t_hash *hash)
 	ft_add_to_hash(hash, th, NULL);
 }
 
-char				*ft_sha256(t_input *input)
+char				*ft_sha224(t_input *input)
 {
 	char			*input_str;
 	char			*hash_str;
@@ -122,8 +110,8 @@ char				*ft_sha256(t_input *input)
 	if (!(input_str = ft_strnew(input->length)))
 		ft_exit_malloc_crash();
 	ft_memcpy(input_str, input->input_str, input->length);
-	init_hash_sha256(input->endian, &hash);
-	init_word_sha256(input_str, input->endian, &word, input);
+	init_hash_sha224(input->endian, &hash);
+	init_word_sha224(input_str, input->endian, &word, input);
 	ft_strdel(&input_str);
 	size = 0;
 	while (size < word.size)
@@ -131,6 +119,7 @@ char				*ft_sha256(t_input *input)
 		compute_chunk((uint32_t *)&word.buf[size], &hash);
 		size += 64;
 	}
+	hash.size -= 1;
 	hash_str = ft_hash_to_ascii(&hash);
 	ft_memdel((void **)&hash.hash32);
 	ft_memdel((void **)&word.buf);
