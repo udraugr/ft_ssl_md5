@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:37 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/04 19:45:37 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 22:29:44 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,11 +15,6 @@
 
 # include "../libftprintf/ft_printf/printf.h"
 # include <fcntl.h>
-
-typedef u_int64_t	uint64_t;
-typedef u_int32_t	uint32_t;
-typedef u_int16_t	uint16_t;
-typedef u_int8_t	uint8_t;
 
 # define ROTL(X, N) (uint32_t)((X << N) | (X >> (32 - N)))
 # define ROTR(X, N) (uint32_t)((X >> N) | (X << (32 - N)))
@@ -128,6 +123,10 @@ typedef struct			s_hash
 
 void					ft_exit_malloc_crash(void);
 
+t_algorithm				*get_algorithms(void);
+
+size_t					word_count_argv_from_stdin(char *str);
+char					**parse_argv_from_stdin(char *str);
 int						get_argv_from_stdin(char ***args,
 										int argc, char **argv);
 uint8_t					get_str_input(char **flags,

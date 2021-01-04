@@ -6,102 +6,11 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/04 17:19:48 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/04 20:51:18 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 21:36:02 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ssl.h"
-
-static size_t		word_count(char *str)
-{
-	size_t			word;
-	size_t			i;
-	uint8_t			whitespaces;
-	char			quote;
-
-	i = 0;
-	word = 0;
-	whitespaces = 1;
-	while (str && str[i])
-	{
-		while (str[i] && ft_strchr(" \t\n", str[i]))
-		{
-			++i;
-			whitespaces = 1;
-		}
-		if (str[i] == '\'' || str[i] == '\"')
-		{
-			quote = str[i];
-			word = (whitespaces) ? word + 1 : word;
-			whitespaces = 0;
-			++i;
-			while (str[i] && str[i] != quote)
-				++i;
-			i = (str[i]) ? i + 1 : i;
-		}
-		else
-		{
-			word = (whitespaces) ? word + 1 : word;
-			whitespaces = 0;
-			while (str[i] && !ft_strchr(" \t\n\'\"", str[i]))
-				++i;
-		}
-	}
-	return (word);
-}
-
-static char			**parse(char *str)
-{
-	char			**args;
-	size_t			begin;
-	size_t			i;
-	size_t			j;
-	size_t			word;
-	uint8_t			whitespaces;
-	char			quote;
-
-	args = NULL;
-	word = word_count(str);
-	if (!(args = (char **)malloc(sizeof(char *) * (word + 1))))
-		ft_exit_malloc_crash();
-	i = 0;
-	j = 0;
-	whitespaces = 1;
-	begin = 0;
-	while (str[i] && j < word)
-	{
-		if (str[i] && ft_strchr(" \t\n", str[i]))
-		{
-			args[j++] = ft_strndup(&str[begin], &str[i] - &str[begin]);
-			++i;
-			whitespaces = 1;
-		}
-		if (str[i] == '\'' || str[i] == '\"')
-		{
-			quote = str[i];
-			begin = (whitespaces) ? i : begin;
-			whitespaces = 0;
-			ft_memmove(&str[i], &str[i + 1], ft_strlen(&str[i + 1]) + 1);
-			++i;
-			while (str[i] && str[i] != quote)
-				++i;
-			if (str[i])
-				ft_memmove(&str[i], &str[i + 1], ft_strlen(&str[i + 1]) + 1);
-		}
-		else
-		{
-			begin = (whitespaces) ? i : begin;
-			whitespaces = 0;
-			++i;
-			while (str[i] && !ft_strchr(" \t\n\'\"", str[i]))
-				++i;
-		}
-	}
-	if (!whitespaces)
-		args[j++] = ft_strndup(&str[begin], &str[i] - &str[begin]);
-	args[j] = NULL;
-	return (args);
-}
 
 static void			read_stdin(char **str)
 {
@@ -145,7 +54,7 @@ int					get_argv_from_stdin(char ***args, int argc, char **argv)
 			read_stdin(&str);
 		if (!ft_strcmp(str, "exit"))
 			stadia = STOP;
-		if (stadia != STOP && !(*args = parse(str)))
+		if (stadia != STOP && !(*args = parse_argv_from_stdin(str)))
 			ft_exit_malloc_crash();
 		ft_strdel(&str);
 	}

@@ -6,27 +6,11 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:43 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/04 19:55:24 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 22:26:21 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ssl.h"
-
-t_algorithm					*get_algorithms(void)
-{
-	static t_algorithm		algorithms[] = {
-							{ft_md5, "md5", "MD5"},
-							{ft_sha224, "sha224", "SHA224"},
-							{ft_sha256, "sha256", "SHA256"},
-							{ft_sha384, "sha384", "SHA384"},
-							{ft_sha512, "sha512", "SHA512"},
-							{ft_sha512_224, "sha512/224", "SHA512/224"},
-							{ft_sha512_256, "sha512/256", "SHA512/256"},
-							{0, {0}, {0}}
-											};
-
-	return (algorithms);
-}
 
 static uint8_t				get_info_algorithm(char *name_algorithm,
 												t_input *input)
@@ -109,7 +93,7 @@ static int					ft_usage(void)
 	return (FAIL);
 }
 
-int							main(int argc, char **argv)
+static void					input_loop(char ***argv)
 {
 	char					**args;
 	size_t					i;
@@ -117,26 +101,31 @@ int							main(int argc, char **argv)
 	t_read_from_stdin		stdin_read;
 	uint8_t					res;
 
-	while (get_argv_from_stdin(&args, argc, argv) != STOP)
+	args = *argv;
+	if ((res = get_info_algorithm(args[0], &input)) == FAIL)
+		ft_usage();
+	i = 1;
+	stdin_read.read_from_stdin = FALSE;
+	stdin_read.need_read = TRUE;
+	while (res == SUCCESS && args[i] && args[i][0] == '-')
 	{
-		res = SUCCESS;
-		if ((res = get_info_algorithm(args[0], &input)) == FAIL)
+		if ((res = get_info_flags(args, &i, &input, &stdin_read)) == FAIL)
 			ft_usage();
-		i = 1;
-		stdin_read.read_from_stdin = FALSE;
-		stdin_read.need_read = TRUE;
-		while (res == SUCCESS && args[i] && args[i][0] == '-')
-		{
-			if ((res = get_info_flags(args, &i, &input, &stdin_read)) == FAIL)
-				ft_usage();
-			++i;
-		}
-		if (res == SUCCESS && !args[i] &&
-			stdin_read.need_read == TRUE && stdin_read.read_from_stdin == FALSE)
-			get_std_input(&input, &stdin_read);
-		else if (res == SUCCESS && args[i])
-			get_file_input(args, i, &input);
-		ft_del_arr(&args);
+		++i;
 	}
+	if (res == SUCCESS && !args[i] &&
+		stdin_read.need_read == TRUE && stdin_read.read_from_stdin == FALSE)
+		get_std_input(&input, &stdin_read);
+	else if (res == SUCCESS && args[i])
+		get_file_input(args, i, &input);
+	ft_del_arr(argv);
+}
+
+int							main(int argc, char **argv)
+{
+	char					**args;
+
+	while (get_argv_from_stdin(&args, argc, argv) != STOP)
+		input_loop(&args);
 	return (0);
 }
