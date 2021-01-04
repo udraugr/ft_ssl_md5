@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/27 15:54:29 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/04 17:11:46 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/05 01:36:16 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ char		**ft_copy_arr(int number_of_str, char **str_arr)
 	unsigned short int	i;
 
 	i = 0;
-	ans = (char **)malloc(sizeof(char *) * number_of_str + 1);
+	ans = (char **)malloc(sizeof(char *) * (number_of_str + 1));
 	if (!ans || !str_arr)
 		return (NULL);
 	while (str_arr[i])
