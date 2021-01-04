@@ -6,13 +6,13 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:43 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/04 15:12:55 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 19:55:24 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/ssl.h"
 
-static t_algorithm			*get_algorithms(void)
+t_algorithm					*get_algorithms(void)
 {
 	static t_algorithm		algorithms[] = {
 							{ft_md5, "md5", "MD5"},
@@ -85,7 +85,7 @@ static uint8_t				get_info_flags(char **flags,
 	return (SUCCESS);
 }
 
-static void					ft_usage(void)
+static int					ft_usage(void)
 {
 	t_algorithm				*algorithms;
 	uint8_t					i;
@@ -106,31 +106,37 @@ static void					ft_usage(void)
 	ft_putendl_fd("-s\tprint the sum of the given string", STDERR_FILENO);
 	ft_putendl_fd("-p\techo STDIN to STDOUT and append the checksum to STDOUT",
 		STDERR_FILENO);
-	exit(FAIL);
+	return (FAIL);
 }
 
 int							main(int argc, char **argv)
 {
+	char					**args;
 	size_t					i;
 	t_input					input;
 	t_read_from_stdin		stdin_read;
+	uint8_t					res;
 
-	if (argc < 2 || get_info_algorithm(argv[1], &input) == FAIL)
-		ft_usage();
-	i = 2;
-	stdin_read.read_from_stdin = FALSE;
-	stdin_read.need_read = TRUE;
-	while (argv[i] && argv[i][0] == '-')
+	while (get_argv_from_stdin(&args, argc, argv) != STOP)
 	{
-		if (get_info_flags(argv, &i, &input, &stdin_read) == FAIL)
+		res = SUCCESS;
+		if ((res = get_info_algorithm(args[0], &input)) == FAIL)
 			ft_usage();
-		++i;
+		i = 1;
+		stdin_read.read_from_stdin = FALSE;
+		stdin_read.need_read = TRUE;
+		while (res == SUCCESS && args[i] && args[i][0] == '-')
+		{
+			if ((res = get_info_flags(args, &i, &input, &stdin_read)) == FAIL)
+				ft_usage();
+			++i;
+		}
+		if (res == SUCCESS && !args[i] &&
+			stdin_read.need_read == TRUE && stdin_read.read_from_stdin == FALSE)
+			get_std_input(&input, &stdin_read);
+		else if (res == SUCCESS && args[i])
+			get_file_input(args, i, &input);
+		ft_del_arr(&args);
 	}
-	if (stdin_read.need_read == TRUE
-		&& stdin_read.read_from_stdin == FALSE
-		&& !argv[i])
-		get_std_input(&input, &stdin_read);
-	else if (argv[i])
-		get_file_input(argv, i, &input);
 	return (0);
 }

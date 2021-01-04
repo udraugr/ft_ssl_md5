@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_copy_arr.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: udraugr- <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2019/01/27 15:54:29 by udraugr-          #+#    #+#             */
-/*   Updated: 2019/01/27 15:54:58 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 17:11:46 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,15 @@ char		**ft_copy_arr(int number_of_str, char **str_arr)
 		return (NULL);
 	while (str_arr[i])
 	{
-		ans[i] = ft_strdup(str_arr[i]);
+		if (!(ans[i] = ft_strdup(str_arr[i])))
+		{
+			while (--i > 0)
+				ft_strdel(&ans[i]);
+			ft_strdel(&ans[i]);
+			free(ans);
+			ans = 0;
+			return (NULL);
+		}
 		++i;
 	}
 	ans[i] = 0;

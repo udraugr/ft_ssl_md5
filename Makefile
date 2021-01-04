@@ -1,6 +1,7 @@
 NAME:= ft_ssl
 
 FILES:= main.c\
+		ft_get_argv_from_stdin.c\
 		ft_get_input.c\
 		ft_print_hash.c\
 		swap_byte_order.c\

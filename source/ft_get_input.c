@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 18:45:52 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/04 15:58:56 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 17:34:54 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,6 +101,7 @@ void				get_file_input(char **argv, size_t i, t_input *input)
 		++i;
 		if (fd == -1 || !(input->input_str = read_from_fd(fd, input)))
 			continue ;
+		close(fd);
 		input->from = argv[i - 1];
 		hash = input->hash_func(input);
 		ft_print_hash(hash, input);

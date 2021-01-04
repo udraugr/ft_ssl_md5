@@ -6,7 +6,7 @@
 /*   By: udraugr- <udraugr-@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/01/01 15:48:37 by udraugr-          #+#    #+#             */
-/*   Updated: 2021/01/04 04:28:37 by udraugr-         ###   ########.fr       */
+/*   Updated: 2021/01/04 19:45:37 by udraugr-         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,13 @@ enum
 	BIG
 };
 
+enum
+{
+	NEXT,
+	NEXT_LAST,
+	STOP
+};
+
 typedef struct			s_read_from_stdin
 {
 	uint8_t				read_from_stdin;
@@ -121,6 +128,8 @@ typedef struct			s_hash
 
 void					ft_exit_malloc_crash(void);
 
+int						get_argv_from_stdin(char ***args,
+										int argc, char **argv);
 uint8_t					get_str_input(char **flags,
 										size_t *i,
 										t_input *input,
